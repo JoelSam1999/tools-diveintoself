@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Burnout Check-in · Dive Into Self</title>
+  <meta name="description" content="A free, private 4-minute burnout check-in by the psychologists at Dive Into Self.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .screen { display: none; }
+    .screen.active { display: block; animation: fade .35s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .hero .meta { margin-top: 16px; }
+    .hero .actions { margin-top: 28px; }
+    .overlap { margin-top: -28px; }
+
+    /* Quiz */
+    .quiz { padding: 28px 0 48px; }
+    .progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+    .progress > div { height: 100%; width: 0; background: var(--plum); transition: width .3s ease; }
+    .qmeta { display: flex; justify-content: space-between; gap: 8px; margin: 10px 0 20px; color: var(--muted); }
+    .recall { display: inline-block; font-family: var(--font-mono); font-size: 12px; background: var(--lilac); color: var(--plum); padding: 4px 10px; border-radius: 99px; margin-bottom: 12px; }
+    fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+    legend { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 5vw, 28px); line-height: 1.25; letter-spacing: -.015em; margin-bottom: 20px; padding: 0; }
+    .options { display: grid; gap: 10px; }
+    .opt {
+      display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px;
+      text-align: left; font: 500 16px var(--font-body); color: var(--ink);
+      background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px;
+      padding: 12px 16px; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .opt:hover { border-color: var(--plum); }
+    .opt[aria-pressed="true"] { border-color: var(--plum); background: var(--lilac); }
+    .opt kbd { flex: none; font-family: var(--font-mono); font-size: 12px; width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted); }
+    .opt[aria-pressed="true"] kbd { background: var(--plum); color: #fff; border-color: var(--plum); }
+    .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    .hint { color: var(--muted); }
+    @media (max-width: 600px) { .hint { display: none; } }
+
+    /* Results */
+    .support { background: var(--blush); border: 1.5px solid var(--orchid); border-radius: var(--radius); padding: 22px; }
+    .support p { margin: 8px 0 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .score { padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .score:last-of-type { border-bottom: 0; }
+    .score-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .badge { font-family: var(--font-mono); font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 99px; color: #2a2230; white-space: nowrap; }
+    .bar { position: relative; height: 12px; background: var(--lilac); border-radius: 99px; margin: 12px 0 6px; overflow: hidden; }
+    .bar > div { height: 100%; width: 0; border-radius: 99px; transition: width .8s ease; }
+    .bar .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--surface); }
+    .score .desc { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--muted); }
+    .score .desc span:last-child { font-family: var(--font-mono); white-space: nowrap; }
+    ol.tips { margin: 14px 0 0; padding: 0; list-style: none; counter-reset: t; display: grid; gap: 12px; }
+    ol.tips li { counter-increment: t; display: flex; gap: 12px; }
+    ol.tips li::before { content: "0" counter(t); font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--number); line-height: 1.2; flex: none; }
+    .cta { background: var(--plum); color: var(--on-plum); border-radius: var(--radius); padding: 26px; }
+    .cta .muted { color: rgba(255, 255, 255, .8); }
+    .cta .avatars .avatar { border-color: var(--plum); }
+    .fine { font-size: 13px; color: var(--muted); }
+
+    @media print {
+      .helpline, header.site, footer.site, .no-print, .quiz { display: none !important; }
+      body { background: #fff; }
+      .card, .support { box-shadow: none; break-inside: avoid; }
+      .hero { background: #fff; color: #000; padding: 0 0 16px; }
+      .hero .eyebrow, .hero .muted { color: #555; }
+      .print-only { display: block !important; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body>
+  <div class="helpline">Need to talk to someone right now? Call <a href="tel:14416">Tele-MANAS 14416</a> · free, 24×7</div>
+  <header class="site">
+    <div class="wrap">
+      <a class="logo" href="/">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#765c80"/><path d="M6 17c3-3 5-3 8 0s5 3 8 0 4-2 4-2M8 22c2.5-2 4.5-2 7 0s4.5 2 7 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        Dive Into Self
+      </a>
+      <a class="navlink" href="/">All tools</a>
+    </div>
+  </header>
+
+  <!-- ============ INTRO ============ -->
+  <main>
+  <section class="screen active" id="intro">
+    <div class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Free burnout check-in</p>
+        <h1>Running on empty? Let's find out.</h1>
+        <p class="lead">A short, private check-in on how drained you feel in your life, your work and with the people you care for. You'll get a clear picture and a next step.</p>
+        <div class="actions"><button class="btn light" data-start>Start the check-in →</button></div>
+        <p class="mono meta muted">Free · ~4 minutes · 13–19 questions · nothing is saved</p>
+        <div class="avatars">
+          <span class="avatar" style="background:var(--orchid)">J</span><span class="avatar" style="background:var(--periwinkle)">A</span>
+          <span>Reviewed by Joel and Akshara, our psychologists</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap overlap">
+      <div class="card">
+        <h3>In 4 minutes, you'll</h3>
+        <ul class="checks">
+          <li>See how much burnout you're carrying in three areas of life</li>
+          <li>Get a plain-language profile of where your energy is going</li>
+          <li>Leave with tips matched to your results, and a next step</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="wrap">
+        <p class="eyebrow">How it works</p>
+        <h2>Three simple steps</h2>
+        <div class="stack" style="margin-top:20px">
+          <div class="step s1"><div class="n">1</div><h3>Answer honestly</h3><p>Think about the past 4 weeks. There are no right or wrong answers.</p></div>
+          <div class="step s2"><div class="n">2</div><h3>See your profile</h3><p>Scores for personal, work and people-related burnout.</p></div>
+          <div class="step s3"><div class="n">3</div><h3>Leave with a next step</h3><p>Tips for this week, and a free call if you'd like to talk.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section tint">
+      <div class="wrap">
+        <p class="eyebrow">Questions</p>
+        <h2>Good to know</h2>
+        <details><summary>Is this a diagnosis?</summary><p>No. It's a self-reflection tool to help you notice patterns. Only a qualified professional can assess your mental health properly.</p></details>
+        <details><summary>Are my answers saved anywhere?</summary><p>No. Everything happens in your browser. Nothing is stored or sent to us unless you choose to share it.</p></details>
+        <details><summary>What is it based on?</summary><p>The Copenhagen Burnout Inventory (Kristensen et al., 2005), a free and widely used research questionnaire. We've lightly adapted the wording for clarity.</p></details>
+        <details><summary>What if my score is high?</summary><p>You're not alone, and burnout is very treatable. We'll suggest practical steps, and you can book a free 30-minute call with one of our psychologists. If you ever feel unsafe, call Tele-MANAS on 14416.</p></details>
+        <div style="margin-top:28px"><button class="btn" data-start>Start the check-in →</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GATE ============ -->
+  <section class="screen quiz" id="gate">
+    <div class="wrap">
+      <div class="card">
+        <p class="eyebrow">Before we begin</p>
+        <fieldset>
+          <legend>Does your work involve caring for or serving people, like clients, patients, students or customers?</legend>
+          <div class="options">
+            <button class="opt" data-gate="yes"><kbd>1</kbd>Yes, a lot of my work is with people</button>
+            <button class="opt" data-gate="no"><kbd>2</kbd>Not really</button>
+          </div>
+        </fieldset>
+        <p class="fine" style="margin-bottom:0">This decides whether we include 6 extra questions about working with people.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUESTIONS ============ -->
+  <section class="screen quiz" id="quiz">
+    <div class="wrap">
+      <div class="card">
+        <div class="progress" aria-hidden="true"><div id="progressBar"></div></div>
+        <div class="qmeta mono"><span id="section"></span><span id="counter" aria-live="polite"></span></div>
+        <span class="recall">Over the past 4 weeks…</span>
+        <fieldset>
+          <legend id="qText" tabindex="-1" style="outline:none"></legend>
+          <div class="options" id="options"></div>
+        </fieldset>
+        <div class="quiz-nav">
+          <button class="btn ghost small" id="backBtn">← Back</button>
+          <span class="mono hint">Tip: press 1–5 to answer</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="screen" id="results">
+    <div class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Your burnout profile</p>
+        <h1 id="profileName"></h1>
+        <p class="lead" id="profileLine"></p>
+        <p class="mono muted print-only" id="printDate"></p>
+      </div>
+    </div>
+
+    <div class="wrap stack overlap" style="padding-bottom:16px">
+      <div class="support" id="support" hidden>
+        <h3>You don't have to carry this alone.</h3>
+        <p>Your answers suggest you're under a lot of strain right now. That's hard, and it's a good reason to reach out. If you ever feel hopeless or unsafe, call Tele-MANAS on 14416 (free, 24×7, in many Indian languages).</p>
+        <div class="row no-print">
+          <a class="btn small" href="tel:14416">Call 14416 now</a>
+          <a class="btn ghost small" data-book>Book a free call with us</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow">Your scores</p>
+        <div id="scores"></div>
+        <details class="no-print" style="border:0;padding-bottom:0">
+          <summary>How is this scored?</summary>
+          <p>Each answer is worth 0 to 100, and each area's score is the average of its answers. Researchers commonly treat 50 or more as a sign of significant burnout. We use 0–49 Low, 50–74 Moderate, 75–99 High and 100 Very high. These are guides, not a diagnosis.</p>
+        </details>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow">What may help this week</p>
+        <h3 id="tipsTitle"></h3>
+        <ol class="tips" id="tips"></ol>
+      </div>
+
+      <div class="cta">
+        <p class="eyebrow" style="color:rgba(255,255,255,.75)">Free discovery call</p>
+        <h2 id="ctaTitle"></h2>
+        <p class="muted" id="ctaText" style="margin:0"></p>
+        <div class="avatars">
+          <span class="avatar" style="background:var(--orchid)">J</span><span class="avatar" style="background:var(--periwinkle)">A</span>
+          <span>You'll speak with Joel or Akshara, our psychologists</span>
+        </div>
+        <div class="chips">
+          <span class="chip">English</span><span class="chip">Tamil</span><span class="chip">Hindi</span><span class="chip">Kannada</span><span class="chip">Malayalam</span>
+        </div>
+        <div class="row no-print" id="ctaButtons"></div>
+        <p class="mono muted" style="margin:14px 0 0">Free · 30 minutes · 1:1 · no payment needed</p>
+      </div>
+
+      <div class="card no-print">
+        <p class="eyebrow">Keep your results</p>
+        <div class="row" style="margin-top:4px">
+          <button class="btn ghost small" id="pdfBtn">Save as PDF</button>
+          <a class="btn ghost small" id="waBtn" target="_blank" rel="noopener">Share on WhatsApp</a>
+          <button class="btn ghost small" id="remindBtn">Remind me in 4 weeks</button>
+          <button class="btn ghost small" id="retakeBtn">Retake</button>
+        </div>
+        <p class="fine" style="margin-bottom:0">Your answers aren't saved anywhere. Save a PDF if you'd like to compare next time or show a counsellor.</p>
+      </div>
+
+      <p class="fine">This check-in is adapted from the Copenhagen Burnout Inventory (Kristensen et al., 2005). It is for self-reflection and is not a medical or psychological diagnosis. If you're in crisis, call Tele-MANAS on <a href="tel:14416">14416</a> or go to your nearest hospital.</p>
+    </div>
+  </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">Your answers stay in your browser and are never stored or sent.<br>© Dive Into Self · <a href="https://www.diveintoself.in">diveintoself.in</a></div>
+  </footer>
+
+  <script>
+    // ---- Settings ----
+    const BOOK_URL = "https://www.diveintoself.in/";              // your discovery-call booking page
+    const TOOL_URL = "https://tools.diveintoself.in/burnout";
+
+    // ---- Copenhagen Burnout Inventory (Kristensen et al., 2005) ----
+    const FREQ = ["Always", "Often", "Sometimes", "Seldom", "Never or almost never"];
+    const DEGREE = ["To a very high degree", "To a high degree", "Somewhat", "To a low degree", "To a very low degree"];
+    const VALUES = [100, 75, 50, 25, 0];
+
+    const SCALES = {
+      personal: { name: "Personal burnout", short: "life in general", desc: "Physical and emotional exhaustion, whatever the cause" },
+      work:     { name: "Work-related burnout", short: "work", desc: "Exhaustion you link to your work" },
+      client:   { name: "People-related burnout", short: "caring for others", desc: "Exhaustion from working with the people you serve" }
+    };
+
+    const ITEMS = [
+      { s: "personal", q: "How often did you feel tired?", a: FREQ },
+      { s: "personal", q: "How often were you physically exhausted?", a: FREQ },
+      { s: "personal", q: "How often were you emotionally exhausted?", a: FREQ },
+      { s: "personal", q: "How often did you think, “I can't take it anymore”?", a: FREQ },
+      { s: "personal", q: "How often did you feel worn out?", a: FREQ },
+      { s: "personal", q: "How often did you feel weak and likely to fall ill?", a: FREQ },
+
+      { s: "work", q: "Was your work emotionally exhausting?", a: DEGREE },
+      { s: "work", q: "Did you feel burnt out because of your work?", a: DEGREE },
+      { s: "work", q: "Did your work frustrate you?", a: DEGREE },
+      { s: "work", q: "Did you feel worn out at the end of the working day?", a: FREQ },
+      { s: "work", q: "Were you exhausted in the morning at the thought of another day at work?", a: FREQ },
+      { s: "work", q: "Did every working hour feel tiring?", a: FREQ },
+      { s: "work", q: "Did you have enough energy for family and friends in your free time?", a: FREQ, reverse: true },
+
+      { s: "client", q: "Did you find it hard to work with the people you serve?", a: DEGREE },
+      { s: "client", q: "Did you find it frustrating to work with them?", a: DEGREE },
+      { s: "client", q: "Did working with them drain your energy?", a: DEGREE },
+      { s: "client", q: "Did you feel you give more than you get back when working with them?", a: DEGREE },
+      { s: "client", q: "Were you tired of working with them?", a: FREQ },
+      { s: "client", q: "Did you wonder how long you'll be able to keep working with them?", a: FREQ }
+    ];
+
+    const LEVELS = [
+      { min: 100, label: "Very high", color: "var(--vhigh)", text: "#fff" },
+      { min: 75,  label: "High",      color: "var(--high)" },
+      { min: 50,  label: "Moderate",  color: "var(--mid)" },
+      { min: 0,   label: "Low",       color: "var(--low)" }
+    ];
+    const levelOf = score => LEVELS.find(l => score >= l.min);
+
+    // ---- Profiles and tips, keyed by highest area and band ----
+    const PROFILES = {
+      low: { name: "On steady ground", line: "Your energy looks fairly protected right now. Whatever you're doing to rest and recover is working, so keep it going." },
+      personal: {
+        mid:  { name: "Running low", line: "You've been more tired than usual, physically or emotionally. This is a good moment to refill before it builds up." },
+        high: { name: "Running on empty", line: "Exhaustion is showing up across your life, not just in one place. It deserves real care, not just a weekend off." }
+      },
+      work: {
+        mid:  { name: "Stretched thin by work", line: "Work is taking more out of you than it gives back. Small changes now can stop this from growing." },
+        high: { name: "Burning out at work", line: "Your work is draining you heavily. It's worth looking at what's driving it, ideally with some support." }
+      },
+      client: {
+        mid:  { name: "Giving more than you get", line: "Caring for others is costing you energy. You need some of that care for yourself too." },
+        high: { name: "Running dry from caring", line: "Supporting others has left you depleted. This is common in caring roles, and it's a sign to get support for yourself." }
+      }
+    };
+
+    const TIPS = {
+      low: ["Keep protecting what helps you recover: sleep, movement, people and time off.",
+            "Watch for early warning signs, like dreading Mondays or snapping more easily.",
+            "Retake this check-in in 4 weeks to see whether anything has changed."],
+      personal: {
+        mid:  ["Keep a regular sleep and wake time this week, even on weekends.",
+               "Plan two 10-minute recovery breaks into each day: a walk, slow breathing or sitting outside.",
+               "List what's draining you outside work too, such as caregiving, money, relationships or health."],
+        high: ["Drop one non-essential commitment this week and use that time to rest.",
+               "Tell one person you trust how tired you've been feeling.",
+               "If the exhaustion comes with low mood, poor sleep or health worries, see a doctor and a counsellor."]
+      },
+      work: {
+        mid:  ["For one week, note which tasks drain you and which give you energy.",
+               "Set one boundary, like a fixed logoff time or no work chats after dinner.",
+               "Take your full lunch break, away from your screen."],
+        high: ["Talk to your manager or HR about workload and priorities, and bring specific examples.",
+               "Check whether your workplace offers an EAP (free, confidential counselling for employees).",
+               "Plan time off to recover, even if it's only a few days."]
+      },
+      client: {
+        mid:  ["Build a 5-minute reset between people-heavy tasks or sessions.",
+               "Debrief with a colleague or supervisor after difficult conversations.",
+               "Notice when you're carrying other people's problems as if they were your own."],
+        high: ["Ask for regular supervision or peer support, and use it.",
+               "Where you can, limit how many emotionally heavy interactions you take on each day.",
+               "Get support for yourself, separate from the people you care for."]
+      }
+    };
+
+    const CTAS = {
+      low:  { title: "Keep checking in", text: "Burnout builds slowly. Set a reminder to retake this in 4 weeks, or talk to us any time you want a sounding board.", primary: "Book a free call" },
+      mid:  { title: "Talk it through, for free", text: "A free 30-minute call with a psychologist to understand what's draining you and what to change. No payment needed.", primary: "Book your free call" },
+      high: { title: "Talk to a psychologist this week", text: "The sooner you get support, the easier recovery is. Start with a free 30-minute call. No payment, no pressure.", primary: "Book your free call" }
+    };
+
+    // ---- Quiz ----
+    let items = [], answers = [], idx = 0, locked = false;
+    const $ = id => document.getElementById(id);
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    document.querySelectorAll("[data-book]").forEach(a => { a.href = BOOK_URL; a.target = "_blank"; a.rel = "noopener"; });
+
+    function show(id) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
+      window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+    }
+
+    function render() {
+      const item = items[idx];
+      const left = Math.max(1, Math.round((items.length - idx) * 12 / 60));
+      $("progressBar").style.width = (idx / items.length * 100) + "%";
+      $("section").textContent = SCALES[item.s].name;
+      $("counter").textContent = `${idx + 1} of ${items.length} · ~${left} min left`;
+      $("qText").textContent = item.q;
+      $("options").innerHTML = "";
+      item.a.forEach((label, i) => {
+        const b = document.createElement("button");
+        b.className = "opt";
+        b.setAttribute("aria-pressed", answers[idx] === i);
+        b.innerHTML = `<kbd>${i + 1}</kbd>${label}`;
+        b.onclick = () => choose(i);
+        $("options").appendChild(b);
+      });
+      locked = false;
+    }
+
+    function choose(i) {
+      if (locked) return;
+      locked = true;
+      answers[idx] = i;
+      [...$("options").children].forEach((b, j) => b.setAttribute("aria-pressed", j === i));
+      setTimeout(() => {
+        if (idx < items.length - 1) { idx++; render(); $("qText").focus({ preventScroll: true }); }
+        else showResults();
+      }, 350);
+    }
+
+    function back() {
+      if (idx > 0) { idx--; render(); } else show("gate");
+    }
+
+    function startQuiz(withClients) {
+      items = ITEMS.filter(i => withClients || i.s !== "client");
+      answers = []; idx = 0;
+      render(); show("quiz");
+    }
+
+    // ---- Results ----
+    function showResults() {
+      const groups = {};
+      items.forEach((item, i) => {
+        const v = VALUES[answers[i]];
+        (groups[item.s] ||= []).push(item.reverse ? 100 - v : v);
+      });
+      const scores = Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, Math.round(v.reduce((a, b) => a + b, 0) / v.length)]));
+
+      const [topKey, topScore] = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+      const band = topScore >= 75 ? "high" : topScore >= 50 ? "mid" : "low";
+      const profile = band === "low" ? PROFILES.low : PROFILES[topKey][band];
+
+      $("profileName").textContent = profile.name;
+      $("profileLine").textContent = profile.line;
+      $("printDate").textContent = "Burnout check-in · " + new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+      $("support").hidden = band !== "high";
+
+      $("scores").innerHTML = Object.entries(scores).map(([k, v]) => {
+        const l = levelOf(v);
+        return `<div class="score">
+          <div class="score-head"><h3>${SCALES[k].name}</h3><span class="badge" style="background:${l.color};color:${l.text || "#2a2230"}">${l.label}</span></div>
+          <div class="bar" role="img" aria-label="${SCALES[k].name}: ${v} out of 100, ${l.label}">
+            <div data-w="${v}" style="background:${l.color}"></div>
+            <span class="tick" style="left:50%"></span><span class="tick" style="left:75%"></span>
+          </div>
+          <div class="desc"><span>${SCALES[k].desc}</span><span>${v} / 100</span></div>
+        </div>`;
+      }).join("");
+
+      const tips = band === "low" ? TIPS.low : TIPS[topKey][band];
+      $("tipsTitle").textContent = band === "low" ? "Keep doing what works" : `Focused on ${SCALES[topKey].short}, where your score was highest`;
+      $("tips").innerHTML = tips.map(t => `<li>${t}</li>`).join("");
+
+      const cta = CTAS[band];
+      $("ctaTitle").textContent = cta.title;
+      $("ctaText").textContent = cta.text;
+      $("ctaButtons").innerHTML = `<a class="btn light" href="${BOOK_URL}" target="_blank" rel="noopener">${cta.primary} →</a>`
+        + (band === "high" ? `<a class="btn ghost" style="color:#fff;border-color:rgba(255,255,255,.5)" href="tel:14416">Call Tele-MANAS 14416</a>` : "");
+
+      const share = `I just took the free 4-minute Burnout Check-in by Dive Into Self. It's private and worth doing: ${TOOL_URL}`;
+      $("waBtn").href = "https://wa.me/?text=" + encodeURIComponent(share);
+
+      show("results");
+      setTimeout(() => document.querySelectorAll(".bar > div").forEach(d => d.style.width = Math.max(d.dataset.w, 2) + "%"), 150);
+    }
+
+    function downloadReminder() {
+      const d = new Date(Date.now() + 28 * 864e5);
+      const pad = n => String(n).padStart(2, "0");
+      const day = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+      const ics = [
+        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Dive Into Self//Burnout Check-in//EN",
+        "BEGIN:VEVENT", `UID:${Date.now()}@tools.diveintoself.in`,
+        `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
+        `DTSTART:${day}T100000`, `DTEND:${day}T101500`,
+        "SUMMARY:Retake your Burnout Check-in",
+        `DESCRIPTION:A 4-minute check-in on how you're doing: ${TOOL_URL}`, `URL:${TOOL_URL}`,
+        "BEGIN:VALARM", "TRIGGER:PT0M", "ACTION:DISPLAY", "DESCRIPTION:Burnout Check-in", "END:VALARM",
+        "END:VEVENT", "END:VCALENDAR"
+      ].join("\r\n");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+      a.download = "burnout-checkin-reminder.ics";
+      a.click();
+    }
+
+    // ---- Wiring ----
+    document.querySelectorAll("[data-start]").forEach(b => b.onclick = () => show("gate"));
+    document.querySelectorAll("[data-gate]").forEach(b => b.onclick = () => startQuiz(b.dataset.gate === "yes"));
+    $("backBtn").onclick = back;
+    $("pdfBtn").onclick = () => window.print();
+    $("remindBtn").onclick = downloadReminder;
+    $("retakeBtn").onclick = () => show("intro");
+
+    document.addEventListener("keydown", e => {
+      const active = document.querySelector(".screen.active").id;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (active === "quiz") {
+        const n = parseInt(e.key, 10);
+        if (n >= 1 && n <= items[idx].a.length) choose(n - 1);
+        else if (e.key === "Backspace" || e.key === "ArrowLeft") back();
+      } else if (active === "gate" && (e.key === "1" || e.key === "2")) {
+        startQuiz(e.key === "1");
+      }
+    });
+  </script>
+</body>
+</html>
